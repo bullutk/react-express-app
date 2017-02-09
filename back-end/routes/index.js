@@ -1,9 +1,42 @@
 var express = require('express');
 var router = express.Router();
-
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+var mysql = require('mysql');
+var connection = mysql.createConnection({
+	host: '127.0.0.1',
+	user: 'x',
+	password: 'x',
+	database: 'students'
 });
+
+connection.connect();
+
+router.get('/getStudents', (req,res,next)=>{
+	connection.query('SELECT * FROM students', (error,results,fields)=>{
+		if (error) throw error;
+		res.json(results);
+	})
+})
+
+router.post('/addStudent', (req,res,next)=>{
+	var studentToAdd = req.body.name;
+	connection.query('INSERT INTO students (name) VALUES (?)', [studentToAdd], (error,results,fields)=>{
+		if (error) throw error;
+		connection.query('SELECT * FROM students', (error,results,fields)=>{
+			if (error) throw error;
+			res.json(results);
+		})
+
+	})
+})
+
+// router.post('/deleteStudent', (req,res,next)=>{
+// 	var studentToDelete = req.body.name;
+// 	connection.query('INSERT INTO students (name) VALUES (?)', [studentToDelete], (error,results,fields)=>{
+// 		if (error) throw error;
+// 			res.json(results);
+// 		})
+
+// 	})
+// })
 
 module.exports = router;
